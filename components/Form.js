@@ -6,22 +6,32 @@ export default function Form() {
     name: '',
     phoneNo: '',
     birthDate: '',
-    email: '', // Added email field
+    email: '',
   });
+  const [photo, setPhoto] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handlePhotoChange = (e) => {
+    setPhoto(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const data = new FormData();
+    Object.keys(formData).forEach(key => {
+      data.append(key, formData[key]);
+    });
+    if (photo) {
+      data.append('photo', photo);
+    }
+
     try {
       const response = await fetch('/api/submit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: data,
       });
       
       if (response.ok) {
@@ -79,7 +89,7 @@ export default function Form() {
           required
         />
       </div>
-      <div className="mb-6">
+      <div className="mb-4">
         <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
           Email Address
         </label>
@@ -91,6 +101,19 @@ export default function Form() {
           onChange={handleChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           required
+        />
+      </div>
+      <div className="mb-6">
+        <label htmlFor="photo" className="block text-gray-700 text-sm font-bold mb-2">
+          Profile Photo
+        </label>
+        <input
+          type="file"
+          id="photo"
+          name="photo"
+          onChange={handlePhotoChange}
+          accept="image/*"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
       <div className="flex items-center justify-between">

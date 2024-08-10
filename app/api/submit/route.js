@@ -6,7 +6,12 @@ import path from "path";
 
 export async function POST(req) {
   try {
-    const { name, phoneNo, birthDate, email } = await req.json();
+    const formData = await req.formData();
+    const name = formData.get("name");
+    const phoneNo = formData.get("phoneNo");
+    const birthDate = formData.get("birthDate");
+    const email = formData.get("email");
+    const photo = formData.get("photo");
 
     // Generate Date of Joining (2 years from now)
     const dateOfJoining = new Date();
@@ -17,7 +22,8 @@ export async function POST(req) {
       name,
       phoneNo,
       birthDate,
-      dateOfJoining.toISOString().split("T")[0]
+      dateOfJoining.toISOString().split("T")[0],
+      photo
     );
 
     // Save the generated PDF
@@ -33,7 +39,7 @@ export async function POST(req) {
   }
 }
 
-async function generatePDF(name, phoneNo, birthDate, dateOfJoining) {
+async function generatePDF(name, phoneNo, birthDate, dateOfJoining, photo) {
   const templatePath = path.join(process.cwd(), "public", "template.pdf");
   const templatePdfBytes = await fs.readFile(templatePath);
   const pdfDoc = await PDFDocument.load(templatePdfBytes);
@@ -83,14 +89,19 @@ async function generatePDF(name, phoneNo, birthDate, dateOfJoining) {
     color: rgb(color.r, color.g, color.b),
   });
 
-  // // Draw joining date
-  // firstPage.drawText(`Joining Date: ${dateOfJoining}`, {
-  //   x: leftMargin,
-  //   y: bottomMargin + lineSpacing,
-  //   size: 8,
-  //   font: font,
-  //   color: textColor,
-  // });
+  // Add photo if provided
+  if (photo) {
+    const photoBytes = await photo.arrayBuffer();
+    const image = await pdfDoc.embedJpg(photoBytes);
+    const scaleFactor = 0.1; // Adjust this value to change the size of the photo
+    const imageDims = image.scale(scaleFactor);
+    firstPage.drawImage(image, {
+      x: width - imageDims.width - -3,
+      y: height - imageDims.height - 42,
+      width: 54,
+      height: 64,
+    });
+  }
 
   const pdfBytes = await pdfDoc.save();
   return pdfBytes;
