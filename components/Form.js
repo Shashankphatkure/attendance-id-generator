@@ -74,7 +74,9 @@ export default function Form() {
   return (
     <div className="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden">
       <div className="px-6 py-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">User Details</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          Attendance ID Generate
+        </h2>
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
             <div>
