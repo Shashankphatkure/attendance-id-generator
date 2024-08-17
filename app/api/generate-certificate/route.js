@@ -97,9 +97,13 @@ export async function POST(request) {
     // );
     // await fs.writeFile(outputPath, pdfBytes);
 
-    const blob = await put(`certificates/${name}-${Date.now()}.pdf`, pdfBytes, {
-      access: "public",
-    });
+    const blob = await put(
+      `certificates/${name}-${Date.now()}.pdf`,
+      await pdfDoc.save(),
+      {
+        access: "public",
+      }
+    );
 
     // CHANGE: Download the PDF from Vercel Blob
     const response = await fetch(blob.url);
