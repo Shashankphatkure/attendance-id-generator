@@ -4,9 +4,7 @@ const nextConfig = {
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
   },
   // Enable experimental serverActions
-  experimental: {
-    serverActions: true,
-  },
+  experimental: {},
 };
 
 export default nextConfig;
