@@ -3,6 +3,7 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import nodemailer from "nodemailer";
 import fs from "fs/promises";
 import path from "path";
+import { put } from "@vercel/blob";
 
 export async function POST(req) {
   try {
@@ -26,13 +27,21 @@ export async function POST(req) {
       photo
     );
 
-    // Save the generated PDF
-    await savePDF(pdfBytes);
+    const blob = await put(`nirnay_foundation_id_card_${name}.pdf`, pdfBytes, {
+      access: "public",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+
+    // // Save the generated PDF
+    // await savePDF(pdfBytes);
 
     // Send email
     await sendEmail(name, email, pdfBytes);
 
-    return NextResponse.json({ message: "Success" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Success", pdfUrl: blob.url },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ message: "Error occurred" }, { status: 500 });
@@ -125,7 +134,9 @@ async function sendEmail(name, email, pdfBytes) {
     from: "shashankphatkurepro@gmail.com",
     to: email,
     subject: "Your Nirnay Foundation ID Card",
+    // CHANGED: Updated email text to mention attachment
     text: `Dear ${name},\n\nPlease find attached your Nirnay Foundation ID card.\n\nBest regards,\nNirnay Foundation`,
+    // NEW: Added PDF attachment
     attachments: [
       {
         filename: "nirnay_foundation_id_card.pdf",

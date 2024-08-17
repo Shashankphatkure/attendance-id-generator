@@ -61,6 +61,9 @@ export default function Form() {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        // NEW: You can use the pdfUrl if needed (e.g., for displaying a link)
+        console.log("PDF URL:", result.pdfUrl);
         setSubmitStatus("success");
       } else {
         setSubmitStatus("error");
