@@ -125,8 +125,8 @@ async function sendEmail(name, email, pdfBytes) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "shashankphatkurepro@gmail.com",
-      pass: "bkqa fpqn wvab ojdi",
+      user: "nirnayfoundationid@gmail.com",
+      pass: "ojch oayg qvjx vkfc",
     },
   });
 
