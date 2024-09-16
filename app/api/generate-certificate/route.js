@@ -12,8 +12,8 @@ import fetch from "node-fetch";
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "nirnayfoundationid@gmail.com",
-    pass: "ojch oayg qvjx vkfc",
+    user: "grabodoshops@gmail.com",
+    pass: "flik grzo zfoq abkt",
   },
 });
 

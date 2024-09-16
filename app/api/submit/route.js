@@ -32,9 +32,6 @@ export async function POST(req) {
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
-    // // Save the generated PDF
-    // await savePDF(pdfBytes);
-
     // Send email
     await sendEmail(name, email, pdfBytes);
 
@@ -54,6 +51,7 @@ async function generatePDF(name, phoneNo, birthDate, dateOfJoining, photo) {
   const pdfDoc = await PDFDocument.load(templatePdfBytes);
   const pages = pdfDoc.getPages();
   const firstPage = pages[0];
+  const secondPage = pages[1]; // Assuming the template has two pages
   const { width, height } = firstPage.getSize();
 
   const textColor = rgb(0, 0, 0); // Black color
@@ -112,6 +110,20 @@ async function generatePDF(name, phoneNo, birthDate, dateOfJoining, photo) {
     });
   }
 
+  // Calculate expiry date (1 year from today minus 1 day)
+  const today = new Date();
+  const expiryDate = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate() - 1);
+  const formattedExpiryDate = expiryDate.toLocaleDateString('en-GB'); // Format as DD/MM/YYYY
+
+  // Draw expiry date on the second page
+  secondPage.drawText(`${formattedExpiryDate}`, {
+    x: 78, // Adjust as needed
+    y: 36.5, // Adjust as needed
+    size: 6,
+    font: boldFont,
+    color: rgb(0, 0, 0), // White color
+  });
+
   const pdfBytes = await pdfDoc.save();
   return pdfBytes;
 }
@@ -125,8 +137,8 @@ async function sendEmail(name, email, pdfBytes) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "nirnayfoundationid@gmail.com",
-      pass: "ojch oayg qvjx vkfc",
+      user: "grabodoshops@gmail.com",
+      pass: "flik grzo zfoq abkt",
     },
   });
 
