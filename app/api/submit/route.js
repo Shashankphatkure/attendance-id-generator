@@ -99,21 +99,37 @@ async function generatePDF(name, phoneNo, birthDate, dateOfJoining, photo) {
   // Add photo if provided
   if (photo) {
     const photoBytes = await photo.arrayBuffer();
-    const image = await pdfDoc.embedJpg(photoBytes);
-    const scaleFactor = 0.1; // Adjust this value to change the size of the photo
-    const imageDims = image.scale(scaleFactor);
+    const arrayBuffer = photoBytes;
+
+    // Determine the MIME type
+    const mimeType = photo.type;
+
+    let image;
+    if (mimeType === "image/jpeg" || mimeType === "image/jpg") {
+      image = await pdfDoc.embedJpg(arrayBuffer);
+    } else if (mimeType === "image/png") {
+      image = await pdfDoc.embedPng(arrayBuffer);
+    } else {
+      throw new Error("Unsupported image format. Please upload JPEG or PNG.");
+    }
+
+    const imageDims = image.scale(0.1); // Adjust the scale factor as needed
     firstPage.drawImage(image, {
-      x: width - imageDims.width - -3,
+      x: width - imageDims.width - 3, // Fixed position adjustment
       y: height - imageDims.height - 42,
-      width: 54,
-      height: 64,
+      width: imageDims.width,
+      height: imageDims.height,
     });
   }
 
   // Calculate expiry date (1 year from today minus 1 day)
   const today = new Date();
-  const expiryDate = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate() - 1);
-  const formattedExpiryDate = expiryDate.toLocaleDateString('en-GB'); // Format as DD/MM/YYYY
+  const expiryDate = new Date(
+    today.getFullYear() + 1,
+    today.getMonth(),
+    today.getDate() - 1
+  );
+  const formattedExpiryDate = expiryDate.toLocaleDateString("en-GB"); // Format as DD/MM/YYYY
 
   // Draw expiry date on the second page
   secondPage.drawText(`${formattedExpiryDate}`, {
@@ -121,7 +137,7 @@ async function generatePDF(name, phoneNo, birthDate, dateOfJoining, photo) {
     y: 36.5, // Adjust as needed
     size: 6,
     font: boldFont,
-    color: rgb(0, 0, 0), // White color
+    color: rgb(0, 0, 0), // Black color
   });
 
   const pdfBytes = await pdfDoc.save();
@@ -146,9 +162,7 @@ async function sendEmail(name, email, pdfBytes) {
     from: "shashankphatkurepro@gmail.com",
     to: email,
     subject: "Your Nirnay Foundation ID Card",
-    // CHANGED: Updated email text to mention attachment
     text: `Dear ${name},\n\nPlease find attached your Nirnay Foundation ID card.\n\nBest regards,\nNirnay Foundation`,
-    // NEW: Added PDF attachment
     attachments: [
       {
         filename: "nirnay_foundation_id_card.pdf",
@@ -173,7 +187,8 @@ export async function GET() {
       sampleData.name,
       sampleData.phoneNo,
       sampleData.birthDate,
-      sampleData.dateOfJoining
+      sampleData.dateOfJoining,
+      null // No photo for test
     );
     await savePDF(pdfBytes);
     return NextResponse.json(
